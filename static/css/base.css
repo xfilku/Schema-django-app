@@ -1,0 +1,35 @@
+*{
+    user-select: none;
+}
+body {
+    overflow-x: hidden;
+}
+.sidebar {
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    padding-top: 1rem;
+}
+.app-name {
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+.center-logo {
+    font-size: 1.1rem;
+    animation: pulse 2s infinite;
+}
+.list-group-item-action:hover {
+    background-color: #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+@keyframes pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+}
+.home-page-link{
+    text-decoration: none;
+    color: black;
+}
+.accordion-button{
+    text-decoration: none;
+}
