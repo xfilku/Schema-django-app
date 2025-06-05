@@ -24,7 +24,7 @@
 
             <!-- Center: something fancy -->
             <span class="mx-auto center-logo">
-                <i class="fa-solid fa-wave-square me-1"></i>Pseudo-inteligentny system kontaktów
+                <i class="fa-solid fa-wave-square me-1"></i>Pseudo-inteligentny system kontaktów Mb: Filip Dyszkiewicz
             </span>
 
             <!-- Right: user dropdown -->
@@ -70,17 +70,32 @@
                         <div id="collapseNumbers" class="accordion-collapse collapse" data-bs-parent="#sidebarAccordion">
                             <div class="accordion-body">
                                 <div class="list-group list-group-flush">
-                                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                                        <i class="fa-solid fa-phone-volume text-primary"></i> Do zadzwonienia
+
+                                    <!-- Główna opcja: Baza numerów -->
+                                    <a href="{% url 'contact_list' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
+                                        <i class="fa-solid fa-address-book text-primary"></i> Baza numerów
                                     </a>
-                                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                                        <i class="fa-solid fa-redo text-warning"></i> Ponowny kontakt
+
+                                    <!-- Podopcja: Dodaj kontakt -->
+                                    <a href="{% url 'contact_create' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2 ps-4">
+                                        <i class="fa-solid fa-user-plus text-success"></i> Dodaj kontakt
                                     </a>
-                                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                                        <i class="fa-solid fa-user-slash text-muted"></i> Nieaktywni
+
+                                    <!-- Inne opcje -->
+                                    <a href="{% url 'contact_list_new' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
+                                        <i class="fa-solid fa-plus-circle text-success"></i> Nowe
                                     </a>
-                                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                                        <i class="fa-solid fa-box-archive text-secondary"></i> Zarchiwizowani
+                                    <a href="{% url 'contact_list_callback' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
+                                        <i class="fa-solid fa-rotate-right text-warning"></i> Ponowny kontakt
+                                    </a>
+                                    <a href="{% url 'contact_list_passed' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
+                                        <i class="fa-solid fa-paper-plane text-info"></i> Przekazane
+                                    </a>
+                                    <a href="{% url 'contact_list_rejected' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
+                                        <i class="fa-solid fa-xmark-circle text-danger"></i> Odrzucony
+                                    </a>
+                                    <a href="{% url 'contact_list_other' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
+                                        <i class="fa-solid fa-ellipsis text-muted"></i> Inne
                                     </a>
                                 </div>
                             </div>
@@ -118,13 +133,13 @@
                         <div id="collapseSettings" class="accordion-collapse collapse" data-bs-parent="#sidebarAccordion">
                             <div class="accordion-body">
                                 <div class="list-group list-group-flush">
-                                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                                        <i class="fa-solid fa-flag text-danger"></i> Flagi
+                                    <a href="{% url 'tag_list' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
+                                        <i class="fa-solid fa-flag text-danger"></i> Tagi
                                     </a>
-                                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
+                                    <a href="{% url 'contacts_export' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
                                         <i class="fa-solid fa-file-export text-success"></i> Eksport danych
                                     </a>
-                                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
+                                    <a href="{% url 'log_list' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
                                         <i class="fa-solid fa-file-lines text-info"></i> Dziennik aktywności
                                     </a>
                                 </div>
@@ -135,7 +150,7 @@
             </nav>
 
             <!-- Main content -->
-            <main class="col-md-9 col-lg-10 px-md-4 py-4" style="height: calc(100vh - 280px); overflow-y: auto;">
+            <main class="col-md-9 col-lg-10 px-md-4 py-4" style="height: 100%">
                 {% block content %}
                 {% endblock %}
             </main>
