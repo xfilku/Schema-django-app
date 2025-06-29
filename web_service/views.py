@@ -1,25 +1,35 @@
+from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
-from .forms import UserSettingsForm, TagForm, PhoneContactForm
-from .models import Tag, Log, PhoneContact, ContactStatus
+from .forms import UserSettingsForm, TagForm
+from .models import Tag, Log, FavoriteLink, UserSilentSettings
 from django.core.paginator import Paginator
-import openpyxl
-
-# Create your views here.
 
 @login_required
 def main_page(request):
+    # Logowanie aktywności (jeśli ustawienia na to pozwalają)
     if hasattr(request.user, 'log_settings') and request.user.log_settings.log_info:
         Log.objects.create(
             user=request.user,
             action='Przeszedł do Dashboard',
-            type = 'INFO'
+            type='INFO'
         )
-    return render(request, 'web_service/dashboard.html')
+
+    # Pobranie ulubionych zakładek użytkownika
+    user_favorites = FavoriteLink.objects.filter(user=request.user)
+    favorite_url_names = [fav.url for fav in user_favorites]
+    favorite_names = [fav.name for fav in user_favorites]
+
+    # Przekazanie danych do szablonu
+    return render(request, 'web_service/dashboard.html', {
+        'user_favorites': user_favorites,
+        'favorite_url_names': favorite_url_names,
+        'favorite_names': favorite_names,
+    })
+
 
 @login_required
 def account_settings(request):
@@ -76,16 +86,44 @@ def change_password(request):
 #tags
 @login_required
 def tag_list(request):
-    tags = Tag.objects.all()
-    #log
+    """
+    Widok listy tagów z obsługą paginacji i ustawieniem liczby rekordów na stronę przechowywanym w UserSilentSettings.
+    """
+    settings, _ = UserSilentSettings.objects.get_or_create(user=request.user)
+    custom = request.GET.get('custom_per_page')
+    selected = request.GET.get('per_page')
+
+    try:
+        if custom:
+            settings.per_page = int(custom)
+            settings.save()
+        elif selected:
+            settings.per_page = int(selected)
+            settings.save()
+    except ValueError:
+        pass 
+
+    per_page = settings.per_page
+    elements = Tag.objects.all().order_by('name')
+    paginator = Paginator(elements, per_page)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     if hasattr(request.user, 'log_settings') and request.user.log_settings.log_info:
         Log.objects.create(
             user=request.user,
-            action=f'Wszedł do modułu Flagi',
-            type = 'INFO'
+            action='Uruchomił moduł Flagi',
+            type='INFO'
         )
 
-    return render(request, 'web_service/settings/tags/tag_list.html', {'tags': tags})
+    return render(request, 'web_service/settings/tags/tag_list.html', {
+        'elements': page_obj,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
+        'paginator': paginator,
+        'per_page': per_page,
+        'per_page_options': [settings.per_page] + [x for x in [10, 20, 50, 100] if x != settings.per_page],
+    })
 
 @login_required
 def tag_create(request):
@@ -148,193 +186,51 @@ def tag_delete(request, pk):
 #logs
 @login_required
 def log_list(request):
-    logs = Log.objects.all()
-    paginator = Paginator(logs, 20)  # 20 logów na stronę
+    settings, _ = UserSilentSettings.objects.get_or_create(user=request.user)
+    custom = request.GET.get('custom_per_page')
+    selected = request.GET.get('per_page')
+
+    try:
+        if custom:
+            settings.per_page = int(custom)
+            settings.save()
+        elif selected:
+            settings.per_page = int(selected)
+            settings.save()
+    except ValueError:
+        pass 
+
+    per_page = settings.per_page
+    elements = Log.objects.all()
+    paginator = Paginator(elements, per_page)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+
     if hasattr(request.user, 'log_settings') and request.user.log_settings.log_info:
         Log.objects.create(
             user=request.user,
-            action=f'Uruchomił moduł Dzinnik zdarzeń',
-            type = 'INFO'
+            action='Uruchomił moduł Dziennik aktywności.',
+            type='INFO'
         )
 
     return render(request, 'web_service/settings/logs/log_list.html', {
-        'logs': page_obj,
+        'elements': page_obj,
         'page_obj': page_obj,
         'is_paginated': page_obj.has_other_pages(),
         'paginator': paginator,
+        'per_page': per_page,
+        'per_page_options': [settings.per_page] + [x for x in [10, 20, 50, 100] if x != settings.per_page],
     })
 
-#phonecontact
-#listy
+#fav
+@require_POST
 @login_required
-def contact_list(request):
-    contacts = PhoneContact.objects.select_related('tag', 'user').all()
-    if hasattr(request.user, 'log_settings') and request.user.log_settings.log_info:
-        Log.objects.create(
-            user=request.user,
-            action=f'Uruchomił moduł Baza kontaktów',
-            type = 'INFO'
-        )
-    return render(request, 'web_service/contacts/contact_list.html', {'contacts': contacts})
+def toggle_favorite(request):
+    url = request.POST.get('url')
+    name = request.POST.get('name')
+    user = request.user
 
-@login_required
-def contact_list(request):
-    contacts = PhoneContact.objects.select_related('tag', 'user').all()
-    if hasattr(request.user, 'log_settings') and request.user.log_settings.log_info:
-        Log.objects.create(
-            user=request.user,
-            action=f'Uruchomił moduł Baza kontaktów',
-            type = 'INFO'
-        )
-    return render(request, 'web_service/contacts/contact_list.html', {'contacts': contacts, 'page_info': "Wszystkie"})
-
-@login_required
-def contact_list_new(request):
-    contacts = PhoneContact.objects.select_related('tag', 'user').filter(status=ContactStatus.NEW)
-    if hasattr(request.user, 'log_settings') and request.user.log_settings.log_info:
-        Log.objects.create(
-            user=request.user,
-            action=f'Uruchomił moduł Kontakty - Nowe',
-            type = 'INFO'
-        )
-    return render(request, 'web_service/contacts/contact_list.html', {'contacts': contacts, 'page_info': "Nowe"})
-
-@login_required
-def contact_list_callback(request):
-    contacts = PhoneContact.objects.select_related('tag', 'user').filter(status=ContactStatus.CALLBACK)
-    if hasattr(request.user, 'log_settings') and request.user.log_settings.log_info:
-        Log.objects.create(
-            user=request.user,
-            action=f'Uruchomił moduł Kontakty - Ponowny kontakt',
-            type = 'INFO'
-        )
-    return render(request, 'web_service/contacts/contact_list.html', {'contacts': contacts, 'page_info': "Ponowny kontakt"})
-
-@login_required
-def contact_list_passed(request):
-    contacts = PhoneContact.objects.select_related('tag', 'user').filter(status=ContactStatus.PASSED_TO_DEV)
-    if hasattr(request.user, 'log_settings') and request.user.log_settings.log_info:
-        Log.objects.create(
-            user=request.user,
-            action=f'Uruchomił moduł Kontakty - Przekazane',
-            type = 'INFO'
-        )
-    return render(request, 'web_service/contacts/contact_list.html', {'contacts': contacts, 'page_info': "Przekazane"})
-
-@login_required
-def contact_list_rejected(request):
-    contacts = PhoneContact.objects.select_related('tag', 'user').filter(status=ContactStatus.REJECTED)
-    if hasattr(request.user, 'log_settings') and request.user.log_settings.log_info:
-        Log.objects.create(
-            user=request.user,
-            action=f'Uruchomił moduł Kontakty - Odrzucone',
-            type = 'INFO'
-        )
-    return render(request, 'web_service/contacts/contact_list.html', {'contacts': contacts, 'page_info': "Odrzucone"})
-
-@login_required
-def contact_list_other(request):
-    contacts = PhoneContact.objects.select_related('tag', 'user').filter(status=ContactStatus.OTHER)
-    if hasattr(request.user, 'log_settings') and request.user.log_settings.log_info:
-        Log.objects.create(
-            user=request.user,
-            action=f'Uruchomił moduł Kontakty - Inne',
-            type = 'INFO'
-        )
-    return render(request, 'web_service/contacts/contact_list.html', {'contacts': contacts, 'page_info': "Inne"})
-
-#akcje
-@login_required
-def contact_create(request):
-    if request.method == 'POST':
-        form = PhoneContactForm(request.POST)
-        if form.is_valid():
-            contact = form.save(commit=False)
-            contact.user = request.user
-            contact.save()
-            if hasattr(request.user, 'log_settings') and request.user.log_settings.log_warning:
-                Log.objects.create(
-                    user=request.user,
-                    action=f"Dodał nowy kontakt: {contact.company_name} (NIP: {contact.nip})",
-                    type = 'WARNING'
-                )
-            return redirect('contact_list')
-    else:
-        form = PhoneContactForm()
-
-    return render(request, 'web_service/contacts/contact_form.html', {
-        'form': form,
-        'title': 'Dodaj nowy kontakt',
-    })
-
-@login_required
-def contact_edit(request, pk):
-    contact = get_object_or_404(PhoneContact, pk=pk)
-    if request.method == 'POST':
-        form = PhoneContactForm(request.POST, instance=contact)
-        if form.is_valid():
-            form.save()
-            if hasattr(request.user, 'log_settings') and request.user.log_settings.log_warning:
-                Log.objects.create(
-                    user=request.user,
-                    action=f"Edytował kontakt: {contact.company_name} (NIP: {contact.nip})",
-                    type = 'WARNING'
-                )
-            return redirect('contact_list')
-    else:
-        form = PhoneContactForm(instance=contact)
-    return render(request, 'web_service/contacts/contact_form.html', {'form': form, 'title': 'Edytuj kontakt'})
-
-@login_required
-def contact_delete(request, pk):
-    contact = get_object_or_404(PhoneContact, pk=pk)
-    if request.method == 'POST':
-        contact.delete()
-        if hasattr(request.user, 'log_settings') and request.user.log_settings.log_warning:
-            Log.objects.create(
-                user=request.user,
-                action=f"Usunął kontakt: {contact.company_name} (NIP: {contact.nip})",
-                type = 'WARNING'
-            )
-        return redirect('contact_list')
-    return render(request, 'web_service/contacts/contact_confirm_delete.html', {'contact': contact})
-
-#export
-@login_required
-def export_contacts_excel(request):
-    contacts = PhoneContact.objects.select_related('tag', 'user').all()
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = "Kontakty"
-
-    headers = ['Firma', 'NIP', 'Miasto', 'Telefon', 'Status', 'Data kontaktu', 'Użytkownik', 'Flaga', 'Notatka']
-    ws.append(headers)
-
-    for contact in contacts:
-        ws.append([
-            contact.company_name,
-            contact.nip,
-            contact.city,
-            contact.phone_number,
-            contact.get_status_display(),
-            contact.contact_date.strftime("%Y-%m-%d %H:%M"),
-            contact.user.username if contact.user else "—",
-            contact.tag.name if contact.tag else "—",
-            contact.note or "",
-        ])
-
-    response = HttpResponse(
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    )
-    response['Content-Disposition'] = 'attachment; filename=kontakty.xlsx'
-
-    wb.save(response)
-    if hasattr(request.user, 'log_settings') and request.user.log_settings.log_warning:
-        Log.objects.create(
-            user=request.user,
-            action=f"Wyeksportował plik z danymi",
-            type = 'WARNING'
-        )
-    return response
+    favorite, created = FavoriteLink.objects.get_or_create(user=user, url=url, name=name)
+    if not created:
+        favorite.delete()
+    return redirect(request.META.get('HTTP_REFERER', '/'))

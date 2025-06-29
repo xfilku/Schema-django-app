@@ -65,6 +65,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'web_service.context_processors.user_favorites',
+                'web_service.context_processors.per_page_setting',
             ],
         },
     },

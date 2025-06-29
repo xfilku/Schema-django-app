@@ -7,7 +7,6 @@ body {
 .sidebar {
     min-height: 100vh;
     background-color: #f8f9fa;
-    padding-top: 1rem;
 }
 .app-name {
     font-weight: bold;
@@ -32,4 +31,47 @@ body {
 }
 .accordion-button{
     text-decoration: none;
+}
+
+#sidebar {
+    width: 250px;
+    min-width: 200px;
+    max-width: 500px;
+    height: 100vh;
+    overflow-y: auto;
+    flex-shrink: 0;
+    background-color: #f8f9fa;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+#resizer {
+    width: 5px;
+    height: 100%;
+    background: #ccc;
+    cursor: ew-resize;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 100;
+}
+
+#main-content {
+    height: 100vh;
+    overflow-y: auto;
+}
+
+#lock-resizer-btn {
+    border: none;
+    background: none;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus {
+    background-color: #e9ecef !important; /* albo #f8f9fa – coś lekko szarego */
+    color: #343a40 !important;
+    border-color: #adb5bd !important;
 }

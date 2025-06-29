@@ -20,11 +20,11 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom px-3">
         <div class="container-fluid">
             <!-- Left: App name -->
-            <span class="navbar-brand app-name"><a href="{% url 'main_page' %}" class="home-page-link">📞 CallManager</a></span>
+            <span class="navbar-brand app-name"><a href="{% url 'main_page' %}" class="home-page-link">📨 Ai-MailReader</a></span>
 
             <!-- Center: something fancy -->
             <span class="mx-auto center-logo">
-                <i class="fa-solid fa-wave-square me-1"></i>Pseudo-inteligentny system kontaktów Mb: Filip Dyszkiewicz
+                <i class="fa-solid fa-wave-square me-1"></i>SmartMailFlow - Filip Dyszkiewicz
             </span>
 
             <!-- Right: user dropdown -->
@@ -34,8 +34,6 @@
                     <strong>{{ request.user.username }}</strong>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                    <li><a class="dropdown-item" href="#">⚙️ Ustawienia</a></li>
-                    <li><hr class="dropdown-divider"></li>
                     <li>
                         <form method="post" action="{% url 'logout' %}">
                             {% csrf_token %}
@@ -47,64 +45,37 @@
         </div>
     </nav>
 
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 sidebar border-end">
-                <div class="accordion" id="sidebarAccordion">
+    <div class="d-flex" style="overflow: hidden;" id="app-wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar border-end position-relative">
+            <div class="d-flex justify-content-between align-items-center p-2 border-bottom bg-light">
+                <div>
+                    {% if user.is_authenticated %}
+                        <button class="btn btn-sm btn-outline-warning" id="favoriteToggle" title="Ulubione">
+                            <i class="fa-regular fa-star"></i>
+                        </button>
+                    {% endif %}
+                </div>
+                <button id="lock-resizer-btn" class="btn btn-sm btn-outline-secondary" title="Zablokuj/odblokuj pasek">
+                    <i id="lock-icon" class="fa-solid fa-lock-open"></i>
+                </button>
+            </div>
+
+            <!-- Normalny sidebar -->
+            <div id="sidebar-all">
+                <div class="accordion h-100" id="sidebarAccordion">
                     <!-- Panel -->
-                     <div class="accordion-item">
+                    <div class="accordion-item">
                         <h2 class="accordion-header">
                             <a href="{% url 'main_page' %}" class="accordion-button d-block collapsed">
                                 <i class="fa-solid fa-house me-2"></i> Panel
                             </a>
                         </h2>
                     </div>
-                    <!-- Baza numerów -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingNumbers">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNumbers">
-                                <i class="fa-solid fa-phone me-2"></i> Baza numerów
-                            </button>
-                        </h2>
-                        <div id="collapseNumbers" class="accordion-collapse collapse" data-bs-parent="#sidebarAccordion">
-                            <div class="accordion-body">
-                                <div class="list-group list-group-flush">
-
-                                    <!-- Główna opcja: Baza numerów -->
-                                    <a href="{% url 'contact_list' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                                        <i class="fa-solid fa-address-book text-primary"></i> Baza numerów
-                                    </a>
-
-                                    <!-- Podopcja: Dodaj kontakt -->
-                                    <a href="{% url 'contact_create' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2 ps-4">
-                                        <i class="fa-solid fa-user-plus text-success"></i> Dodaj kontakt
-                                    </a>
-
-                                    <!-- Inne opcje -->
-                                    <a href="{% url 'contact_list_new' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                                        <i class="fa-solid fa-plus-circle text-success"></i> Nowe
-                                    </a>
-                                    <a href="{% url 'contact_list_callback' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                                        <i class="fa-solid fa-rotate-right text-warning"></i> Ponowny kontakt
-                                    </a>
-                                    <a href="{% url 'contact_list_passed' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                                        <i class="fa-solid fa-paper-plane text-info"></i> Przekazane
-                                    </a>
-                                    <a href="{% url 'contact_list_rejected' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                                        <i class="fa-solid fa-xmark-circle text-danger"></i> Odrzucony
-                                    </a>
-                                    <a href="{% url 'contact_list_other' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                                        <i class="fa-solid fa-ellipsis text-muted"></i> Inne
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Profil -->
                     <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingProfile">
+                        <h2 class="accordion-header">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProfile">
                                 <i class="fa-solid fa-user me-2"></i> Profil
                             </button>
@@ -112,11 +83,35 @@
                         <div id="collapseProfile" class="accordion-collapse collapse" data-bs-parent="#sidebarAccordion">
                             <div class="accordion-body">
                                 <div class="list-group list-group-flush">
-                                    <a href="{% url 'account_settings' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                                        <i class="fa-solid fa-user-gear text-primary"></i> Ustawienia konta
+                                    <a href="{% url 'account_settings' %}" class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span><i class="fa-solid fa-user-gear text-primary me-2"></i> Ustawienia konta</span>
+                                        <form method="post" action="{% url 'toggle_favorite' %}" class="d-inline favorite-form">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="url" value="{% url 'account_settings' %}">
+                                            <input type="hidden" name="name" value="Ustawienia konta">
+                                            <button type="submit" class="btn btn-link p-0 border-0 text-warning">
+                                                {% if 'Ustawienia konta' in favorite_names %}
+                                                    <i class="fa-solid fa-star"></i>
+                                                {% else %}
+                                                    <i class="fa-regular fa-star"></i>
+                                                {% endif %}
+                                            </button>
+                                        </form>
                                     </a>
-                                    <a href="{% url 'change_password' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                                        <i class="fa-solid fa-key text-danger"></i> Zmiana hasła
+                                    <a href="{% url 'change_password' %}" class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span><i class="fa-solid fa-key text-danger me-2"></i> Zmiana hasła</span>
+                                        <form method="post" action="{% url 'toggle_favorite' %}" class="d-inline favorite-form">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="url" value="{% url 'change_password' %}">
+                                            <input type="hidden" name="name" value="Zmiana hasła">
+                                            <button type="submit" class="btn btn-link p-0 border-0 text-warning">
+                                                {% if 'Zmiana hasła' in favorite_names %}
+                                                    <i class="fa-solid fa-star"></i>
+                                                {% else %}
+                                                    <i class="fa-regular fa-star"></i>
+                                                {% endif %}
+                                            </button>
+                                        </form>
                                     </a>
                                 </div>
                             </div>
@@ -125,7 +120,7 @@
 
                     <!-- Ustawienia -->
                     <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingSettings">
+                        <h2 class="accordion-header">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSettings">
                                 <i class="fa-solid fa-gear me-2"></i> Ustawienia
                             </button>
@@ -133,32 +128,73 @@
                         <div id="collapseSettings" class="accordion-collapse collapse" data-bs-parent="#sidebarAccordion">
                             <div class="accordion-body">
                                 <div class="list-group list-group-flush">
-                                    <a href="{% url 'tag_list' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                                        <i class="fa-solid fa-flag text-danger"></i> Tagi
+                                    <a href="{% url 'tag_list' %}" class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span><i class="fa-solid fa-flag text-danger me-2"></i> Tagi</span>
+                                        <form method="post" action="{% url 'toggle_favorite' %}" class="d-inline favorite-form">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="url" value="{% url 'tag_list' %}">
+                                            <input type="hidden" name="name" value="Tagi">
+                                            <button type="submit" class="btn btn-link p-0 border-0 text-warning">
+                                                {% if 'Tagi' in favorite_names %}
+                                                    <i class="fa-solid fa-star"></i>
+                                                {% else %}
+                                                    <i class="fa-regular fa-star"></i>
+                                                {% endif %}
+                                            </button>
+                                        </form>
                                     </a>
-                                    <a href="{% url 'contacts_export' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                                        <i class="fa-solid fa-file-export text-success"></i> Eksport danych
-                                    </a>
-                                    <a href="{% url 'log_list' %}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                                        <i class="fa-solid fa-file-lines text-info"></i> Dziennik aktywności
+                                    <a href="{% url 'log_list' %}" class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span><i class="fa-solid fa-file-lines text-info me-2"></i> Dziennik aktywności</span>
+                                        <form method="post" action="{% url 'toggle_favorite' %}" class="d-inline favorite-form">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="url" value="{% url 'log_list' %}">
+                                            <input type="hidden" name="name" value="Dziennik aktywności">
+                                            <button type="submit" class="btn btn-link p-0 border-0 text-warning">
+                                                {% if 'Dziennik aktywności' in favorite_names %}
+                                                    <i class="fa-solid fa-star"></i>
+                                                {% else %}
+                                                    <i class="fa-regular fa-star"></i>
+                                                {% endif %}
+                                            </button>
+                                        </form>
                                     </a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </nav>
+            </div>
 
-            <!-- Main content -->
-            <main class="col-md-9 col-lg-10 px-md-4 py-4" style="height: 100%">
-                {% block content %}
-                {% endblock %}
-            </main>
-        </div>
+            <!-- Ulubione -->
+            <div id="sidebar-favorites" style="display: none;">
+                <h6 class="text-center mt-3 mb-2 text-muted">Ulubione</h6>
+                <div class="list-group list-group-flush">
+                    {% for fav in user_favorites %}
+                        <a href="{{ fav.url }}" class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{{ fav.name }}</span>
+                            <i class="fa-solid fa-star text-warning"></i>
+                        </a>
+                    {% empty %}
+                        <p class="text-center text-muted my-2">Brak ulubionych</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div id="resizer"></div>
+        </nav>
+
+        <!-- Main content -->
+        <main id="main-content" class="flex-grow-1 px-md-4 py-4 overflow-auto">
+            {% block content %}
+            {% endblock %}
+        </main>
     </div>
+
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/menu-resize.js'%}"></script>
+    <script src="{% static 'js/menu-height.js'%}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
