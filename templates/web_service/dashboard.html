@@ -3,6 +3,83 @@
 {% block title %}Panel główny{% endblock %}
 
 {% block content %}
-    <h1 class="mb-4">Witaj w panelu!</h1>
-    <p>To jest przykładowa zawartość główna. Wybierz moduł z menu po lewej.</p>
+<div class="container-fluid px-4">
+    <h1 class="mt-4 mb-3">Panel zarządzania</h1>
+    <p class="text-muted mb-4">Witaj w systemie – wybierz funkcję z menu po lewej lub sprawdź podsumowanie poniżej.</p>
+
+    <div class="row g-4">
+        <!-- Liczba ticketów -->
+        <div class="col-md-4">
+            <div class="p-4 bg-light border rounded shadow-sm h-100">
+                <h5 class="mb-2">🎫 Liczba aktywnych ticketów</h5>
+                <p class="display-6 fw-semibold text-primary">17</p>
+                <a href="#" class="btn btn-sm btn-outline-primary mt-2">Przejdź do zgłoszeń</a>
+            </div>
+        </div>
+
+        <!-- Ostatnie zdarzenia -->
+        <div class="col-md-8">
+            <div class="p-4 bg-white border rounded shadow-sm h-100">
+                <h5 class="mb-3">📅 Ostatnie zdarzenia</h5>
+                <ul class="list-unstyled mb-0">
+                    {% if logs %}
+                        {% for log in logs %}
+                            {% if log.tpye == "WARNING" %}
+                                <li class="mb-2">
+                                    <span class="fw-semibold text-warning">
+                                        [{{ log.type }}]
+                                    </span>
+                                    <span class="fw-semibold text-warning">
+                                        {{ log.date|date:"Y-m-d H:i:s" }}
+                                    </span>
+                                    {{ log.action }}
+                                </li>
+                            {% elif log.tpye == "ERROR" %}
+                                <li class="mb-2">
+                                    <span class="fw-semibold text-primary">
+                                        [{{ log.type }}]
+                                    </span>
+                                    <span class="fw-semibold text-primary">
+                                        {{ log.date|date:"Y-m-d H:i:s" }}
+                                    </span>
+                                    {{ log.action }}
+                                </li>
+                            {% else %}
+                                <li class="mb-2">
+                                    <span class="fw-semibold text-danger">
+                                        [{{ log.type }}]
+                                    </span>
+                                    <span class="fw-semibold text-danger">
+                                        {{ log.date|date:"Y-m-d H:i:s" }}
+                                    </span>
+                                    {{ log.action }}
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <li class="text-muted">Brak dostępnych zdarzeń</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Ogłoszenia -->
+        <div class="col-md-6">
+            <div class="p-4 bg-light border rounded shadow-sm h-100">
+                <h5 class="mb-2">📢 Ogłoszenia</h5>
+                <p class="mb-0">W piątek 5 lipca planowana jest aktualizacja systemu. Możliwe chwilowe przerwy w dostępie.</p>
+            </div>
+        </div>
+
+        <!-- Szybkie ustawienia -->
+        <div class="col-md-6">
+            <div class="p-4 bg-white border rounded shadow-sm h-100">
+                <h5 class="mb-2">⚙️ Szybkie ustawienia</h5>
+                <p class="mb-3">Zarządzaj swoim kontem lub preferencjami systemowymi.</p>
+                <a href="{% url 'account_settings' %}" class="btn btn-sm btn-outline-secondary">Ustawienia konta</a>
+                <a href="{% url 'admin:index' %}" class="btn btn-sm btn-outline-dark ms-2">Panel administratora</a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

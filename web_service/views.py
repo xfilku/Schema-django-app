@@ -10,6 +10,8 @@ from django.core.paginator import Paginator
 
 @login_required
 def main_page(request):
+    lastest_logs = Log.objects.order_by('-date')[:5]
+
     # Logowanie aktywności (jeśli ustawienia na to pozwalają)
     if hasattr(request.user, 'log_settings') and request.user.log_settings.log_info:
         Log.objects.create(
@@ -28,6 +30,7 @@ def main_page(request):
         'user_favorites': user_favorites,
         'favorite_url_names': favorite_url_names,
         'favorite_names': favorite_names,
+        'logs': lastest_logs
     })
 
 
