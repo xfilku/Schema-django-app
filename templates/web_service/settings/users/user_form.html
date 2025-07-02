@@ -4,19 +4,63 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">{{ title }}</h2>
+<div class="container my-5">
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-5">
+            <h2 class="mb-4">
+                <i class="fa-solid fa-user-pen me-2 text-primary"></i>{{ title }}
+            </h2>
 
-<form method="post" novalidate>
-    {% csrf_token %}
-    {{ form|crispy }}
+            <form method="post" novalidate>
+                {% csrf_token %}
 
-    <div class="d-flex justify-content-start gap-2 mt-3">
-        <button type="submit" class="btn btn-success">
-            <i class="fa-solid fa-floppy-disk me-1"></i> Zapisz
-        </button>
-        <a href="{% url 'user_list' %}" class="btn btn-secondary">
-            <i class="fa-solid fa-xmark me-1"></i> Anuluj
-        </a>
+                <!-- Sekcja: Dane użytkownika -->
+                <h5 class="text-secondary mb-3 mt-4 border-bottom pb-2">
+                    <i class="fa-solid fa-id-card me-1"></i> Dane użytkownika
+                </h5>
+                <div class="row g-3">
+                    <div class="col-md-6">{{ form.username|as_crispy_field }}</div>
+                    <div class="col-md-6">{{ form.email|as_crispy_field }}</div>
+                    <div class="col-md-6">{{ form.first_name|as_crispy_field }}</div>
+                    <div class="col-md-6">{{ form.last_name|as_crispy_field }}</div>
+                    <div class="col-md-4">{{ form.is_staff|as_crispy_field }}</div>
+                    <div class="col-md-4">{{ form.is_superuser|as_crispy_field }}</div>
+                    <div class="col-md-4">{{ form.is_active|as_crispy_field }}</div>
+                </div>
+
+                <!-- Sekcja: Logi -->
+                <h5 class="text-secondary mb-3 mt-5 border-bottom pb-2">
+                    <i class="fa-solid fa-list-check me-1"></i> Ustawienia logów
+                </h5>
+                <div class="row g-3">
+                    <div class="col-md-4">{{ form.log_info|as_crispy_field }}</div>
+                    <div class="col-md-4">{{ form.log_warning|as_crispy_field }}</div>
+                    <div class="col-md-4">{{ form.log_error|as_crispy_field }}</div>
+                </div>
+
+                <!-- Sekcja: Uprawnienia -->
+                <h5 class="text-secondary mb-3 mt-5 border-bottom pb-2">
+                    <i class="fa-solid fa-shield-halved me-1"></i> Uprawnienia modułowe
+                </h5>
+                <div class="row g-3">
+                    {% for field in form %}
+                        {% if field.name|slice:":5" == "perm_" %}
+                            <div class="col-md-6">{{ field|as_crispy_field }}</div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <!-- Przycisk zapisu -->
+                <div class="d-flex justify-content-start gap-2 mt-5">
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="fa-solid fa-floppy-disk me-2"></i> Zapisz
+                    </button>
+                    <a href="{% url 'user_list' %}" class="btn btn-secondary px-4">
+                        <i class="fa-solid fa-xmark me-2"></i> Anuluj
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
-</form>
+</div>
 {% endblock %}

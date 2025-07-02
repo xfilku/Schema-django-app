@@ -271,6 +271,7 @@
         <main id="main-content" class="flex-grow-1 px-md-4 py-4 overflow-auto">
             {% block content %}
             {% endblock %}
+            <div style="height: 75px;"></div>
         </main>
     </div>
     <input type="hidden" id="current-url-name" value="{{ request.resolver_match.url_name }}">

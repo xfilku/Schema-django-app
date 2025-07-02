@@ -21,3 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('web_service.urls')),
 ]
+
+handler404 = 'web_service.views.custom_404_view'

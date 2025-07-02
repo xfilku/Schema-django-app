@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Brak uprawnień{% endblock %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <h1 class="display-4 text-danger mb-4">403 – Brak uprawnień</h1>
+    <p class="lead">Nie masz dostępu do tej strony. Skontaktuj się z administratorem lub zaloguj się innym kontem.</p>
+
+    <div class="d-flex justify-content-center gap-3 mt-4">
+        <button onclick="window.history.back()" class="btn btn-secondary">
+            <i class="fa-solid fa-arrow-left me-1"></i> Wróć
+        </button>
+        <form method="post" action="{% url 'logout' %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger">
+                <i class="fa-solid fa-right-from-bracket me-1"></i> Zmień użytkownika
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

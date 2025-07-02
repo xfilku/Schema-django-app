@@ -86,24 +86,22 @@
         </nav>
     {% endif %}
 
-<form method="get" class="d-inline-block mb-3">
-    <label for="per_page">Ilość na stronę:</label>
+    <form method="get" class="d-inline-block mb-3">
+        <label for="per_page">Ilość na stronę:</label>
 
-    <!-- Gotowe opcje -->
-    <select name="per_page" id="per_page" onchange="this.form.submit()" class="form-select d-inline-block w-auto ms-2 me-2">
-        {% for option in per_page_options %}
-            <option value="{{ option }}" {% if per_page == option %}selected{% endif %}>{{ option }}</option>
-        {% endfor %}
-    </select>
+        <!-- Gotowe opcje -->
+        <select name="per_page" id="per_page" onchange="this.form.submit()" class="form-select d-inline-block w-auto ms-2 me-2">
+            {% for option in per_page_options %}
+                <option value="{{ option }}" {% if per_page == option %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+        </select>
 
-    <!-- Własna liczba + przycisk -->
-    <input type="number" name="custom_per_page" min="1" placeholder="Wpisz..." class="form-control d-inline-block w-auto me-2">
-    <button type="submit" class="btn btn-sm btn-primary">Zastosuj</button>
+        <!-- Własna liczba + przycisk -->
+        <input type="number" name="custom_per_page" min="1" placeholder="Wpisz..." class="form-control d-inline-block w-auto me-2">
+        <button type="submit" class="btn btn-sm btn-primary">Zastosuj</button>
 
-    <!-- reset strony przy każdej zmianie -->
-    <input type="hidden" name="page" value="1">
-</form>
-
-    <div>To jest koniec</div>
+        <!-- reset strony przy każdej zmianie -->
+        <input type="hidden" name="page" value="1">
+    </form>
 </div>
 {% endblock %}

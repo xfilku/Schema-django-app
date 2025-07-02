@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import JSONField
 
 class UserLogSettings(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='log_settings')
@@ -75,3 +76,13 @@ class Announcement(models.Model):
 
     def __str__(self):
         return f"{self.subject} ({self.date})"
+    
+class UserPermissions(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='custom_permissions')
+    permissions = JSONField(default=dict)  # np. {"announcement.view": true, ...}
+
+    def has_permission(self, code):
+        return self.permissions.get(code, False)
+
+    def __str__(self):
+        return f"Uprawnienia {self.user.username}"

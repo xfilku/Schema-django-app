@@ -19,3 +19,12 @@ def per_page_setting(request):
         setting = UserSilentSettings.objects.filter(user=request.user).first()
         return {'global_per_page': setting.per_page if setting else 20}
     return {'global_per_page': 20}
+
+def user_permissions(request):
+    if not request.user.is_authenticated:
+        return {}
+    
+    perms = getattr(request.user, 'custom_permissions', None)
+    return {
+        'USER_PERMS': perms.permissions if perms else {}
+    }

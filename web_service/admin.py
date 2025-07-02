@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import Tag, UserLogSettings
+from .models import Tag, UserLogSettings, UserPermissions
 from .forms import TagAdminForm
 
 
@@ -12,6 +12,11 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'color',)
     search_fields = ('name',)
 
+@admin.register(UserPermissions)
+class UserPermissionsAdmin(admin.ModelAdmin):
+    list_display = ['user']
+    readonly_fields = ['user']
+    search_fields = ['user__username']
 
 # --- UserLogSettings inline dla użytkownika ---
 class UserLogSettingsInline(admin.StackedInline):
