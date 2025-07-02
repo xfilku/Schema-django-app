@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Usuń użytkownika{% endblock %}
+
+{% block content %}
+<h2>Potwierdź usunięcie</h2>
+<p class="mb-3">Czy na pewno chcesz usunąć użytkownika <strong>{{ element.username }}</strong>?</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">
+        <i class="fa-solid fa-trash me-1"></i> Usuń
+    </button>
+    <a href="{% url 'user_list' %}" class="btn btn-secondary ms-2">Anuluj</a>
+</form>
+{% endblock %}

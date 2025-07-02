@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<h2>{{ title }}</h2>
+
+<form method="post" novalidate>
+    {% csrf_token %}
+    {{ form|crispy }}
+
+    <div class="d-flex justify-content-start gap-2 mt-3">
+        <button type="submit" class="btn btn-success">
+            <i class="fa-solid fa-paper-plane me-1"></i> Zapisz
+        </button>
+        <a href="{% url 'announcement_list' %}" class="btn btn-secondary">
+            <i class="fa-solid fa-xmark me-1"></i> Anuluj
+        </a>
+    </div>
+</form>
+{% endblock %}

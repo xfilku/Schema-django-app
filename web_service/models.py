@@ -54,3 +54,24 @@ class Tag(models.Model):
     def __str__(self):
         return f"{self.name}"
     
+class InfoServiceConfiguration(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="info_page_configuration")
+    log_display_limit = models.PositiveSmallIntegerField(default=3)
+    announcement_display_limit = models.PositiveSmallIntegerField(default=1)
+
+    ticket_display_switch = models.BooleanField(default=True)
+    logs_disaply_switch = models.BooleanField(default=True)
+    announcement_display_switch = models.BooleanField(default=True)
+    fast_settings_display_switch = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"Konfiguracja infoserwisu dla {self.user.username}"
+    
+class Announcement(models.Model):
+    date = models.DateField()
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='announcements')
+    subject = models.CharField(max_length=75)
+    message = models.TextField(max_length=350)
+
+    def __str__(self):
+        return f"{self.subject} ({self.date})"

@@ -9,77 +9,110 @@
 
     <div class="row g-4">
         <!-- Liczba ticketów -->
-        <div class="col-md-4">
-            <div class="p-4 bg-light border rounded shadow-sm h-100">
-                <h5 class="mb-2">🎫 Liczba aktywnych ticketów</h5>
-                <p class="display-6 fw-semibold text-primary">17</p>
-                <a href="#" class="btn btn-sm btn-outline-primary mt-2">Przejdź do zgłoszeń</a>
+        {% if info_service_config.ticket_display_switch %}
+            <div class="col-md-4">
+                <div class="p-4 bg-light border rounded shadow-sm h-100">
+                    <h5 class="mb-2">🎫 Liczba aktywnych ticketów</h5>
+                    <p class="display-6 fw-semibold text-primary">17</p>
+                    <a href="#" class="btn btn-sm btn-outline-primary mt-2">Przejdź do zgłoszeń</a>
+                </div>
             </div>
-        </div>
+        {% endif %}
 
         <!-- Ostatnie zdarzenia -->
-        <div class="col-md-8">
-            <div class="p-4 bg-white border rounded shadow-sm h-100">
-                <h5 class="mb-3">📅 Ostatnie zdarzenia</h5>
-                <ul class="list-unstyled mb-0">
-                    {% if logs %}
-                        {% for log in logs %}
-                            {% if log.tpye == "WARNING" %}
-                                <li class="mb-2">
-                                    <span class="fw-semibold text-warning">
-                                        [{{ log.type }}]
-                                    </span>
-                                    <span class="fw-semibold text-warning">
-                                        {{ log.date|date:"Y-m-d H:i:s" }}
-                                    </span>
-                                    {{ log.action }}
-                                </li>
-                            {% elif log.tpye == "ERROR" %}
-                                <li class="mb-2">
-                                    <span class="fw-semibold text-primary">
-                                        [{{ log.type }}]
-                                    </span>
-                                    <span class="fw-semibold text-primary">
-                                        {{ log.date|date:"Y-m-d H:i:s" }}
-                                    </span>
-                                    {{ log.action }}
-                                </li>
-                            {% else %}
-                                <li class="mb-2">
-                                    <span class="fw-semibold text-danger">
-                                        [{{ log.type }}]
-                                    </span>
-                                    <span class="fw-semibold text-danger">
-                                        {{ log.date|date:"Y-m-d H:i:s" }}
-                                    </span>
-                                    {{ log.action }}
-                                </li>
-                            {% endif %}
-                        {% endfor %}
-                    {% else %}
-                        <li class="text-muted">Brak dostępnych zdarzeń</li>
-                    {% endif %}
-                </ul>
+        {% if info_service_config.logs_disaply_switch %}
+            <div class="col-md-8">
+                <div class="p-4 bg-white border rounded shadow-sm h-100">
+                    <h5 class="mb-3">📅 Ostatnie zdarzenia</h5>
+                    <ul class="list-unstyled mb-0">
+                        {% if logs %}
+                            {% for log in logs %}
+                                {% if log.tpye == "WARNING" %}
+                                    <li class="mb-2">
+                                        <span class="fw-semibold text-warning">
+                                            [{{ log.type }}]
+                                        </span>
+                                        <span class="fw-semibold text-warning">
+                                            {{ log.date|date:"Y-m-d H:i:s" }}
+                                        </span>
+                                        {{ log.action }}
+                                    </li>
+                                {% elif log.tpye == "ERROR" %}
+                                    <li class="mb-2">
+                                        <span class="fw-semibold text-primary">
+                                            [{{ log.type }}]
+                                        </span>
+                                        <span class="fw-semibold text-primary">
+                                            {{ log.date|date:"Y-m-d H:i:s" }}
+                                        </span>
+                                        {{ log.action }}
+                                    </li>
+                                {% else %}
+                                    <li class="mb-2">
+                                        <span class="fw-semibold text-danger">
+                                            [{{ log.type }}]
+                                        </span>
+                                        <span class="fw-semibold text-danger">
+                                            {{ log.date|date:"Y-m-d H:i:s" }}
+                                        </span>
+                                        {{ log.action }}
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <li class="text-muted">Brak dostępnych zdarzeń</li>
+                        {% endif %}
+                    </ul>
+                </div>
             </div>
-        </div>
+        {% endif %}
 
         <!-- Ogłoszenia -->
-        <div class="col-md-6">
-            <div class="p-4 bg-light border rounded shadow-sm h-100">
-                <h5 class="mb-2">📢 Ogłoszenia</h5>
-                <p class="mb-0">W piątek 5 lipca planowana jest aktualizacja systemu. Możliwe chwilowe przerwy w dostępie.</p>
+        {% if info_service_config.announcement_display_switch %}
+            <div class="col-md-6">
+                <div class="p-4 bg-light border rounded shadow-sm h-100">
+                    <h5 class="mb-4">📢 Ogłoszenia</h5>
+
+                    {% if lastest_announcements %}
+                        <ul class="list-unstyled">
+                            {% for a in lastest_announcements %}
+                                <li class="d-flex align-items-start mb-4 pb-3 border-bottom">
+                                    <!-- Kartka z kalendarza -->
+                                    <div class="bg-primary text-white text-center rounded me-3 d-flex flex-column justify-content-between" style="width: 70px; min-width: 70px; height: 80px;">
+                                        <div class="fw-bold pt-2" style="font-size: 1.1rem;">
+                                            {{ a.date|date:"d.m" }}
+                                        </div>
+                                        <div class="pb-2" style="font-size: 1.25rem;">
+                                            {{ a.date|date:"Y" }}
+                                        </div>
+                                    </div>
+
+                                    <!-- Treść ogłoszenia -->
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold mb-1">{{ a.subject }}</div>
+                                        <div class="text-muted small">{{ a.message }}</div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted mb-0">Brak ogłoszeń do wyświetlenia.</p>
+                    {% endif %}
+                </div>
             </div>
-        </div>
+        {% endif %}
 
         <!-- Szybkie ustawienia -->
-        <div class="col-md-6">
-            <div class="p-4 bg-white border rounded shadow-sm h-100">
-                <h5 class="mb-2">⚙️ Szybkie ustawienia</h5>
-                <p class="mb-3">Zarządzaj swoim kontem lub preferencjami systemowymi.</p>
-                <a href="{% url 'account_settings' %}" class="btn btn-sm btn-outline-secondary">Ustawienia konta</a>
-                <a href="{% url 'admin:index' %}" class="btn btn-sm btn-outline-dark ms-2">Panel administratora</a>
+        {% if info_service_config.fast_settings_display_switch%}
+            <div class="col-md-6">
+                <div class="p-4 bg-white border rounded shadow-sm h-100">
+                    <h5 class="mb-2">⚙️ Szybkie ustawienia</h5>
+                    <p class="mb-3">Zarządzaj swoim kontem lub preferencjami systemowymi.</p>
+                    <a href="{% url 'account_settings' %}" class="btn btn-sm btn-outline-secondary">Ustawienia konta</a>
+                    <a href="{% url 'admin:index' %}" class="btn btn-sm btn-outline-dark ms-2">Panel administratora</a>
+                </div>
             </div>
-        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

@@ -1,16 +1,19 @@
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.models import User
 from django.contrib.auth import update_session_auth_hash
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
-from .forms import UserSettingsForm, TagForm
-from .models import Tag, Log, FavoriteLink, UserSilentSettings
+from .forms import UserSettingsForm, TagForm, InfoServiceConfigurationForm, AnnouncementForm, CustomUserCreateForm, CustomUserEditForm
+from .models import Tag, Log, FavoriteLink, UserSilentSettings, InfoServiceConfiguration, Announcement
 from django.core.paginator import Paginator
 
 @login_required
 def main_page(request):
-    lastest_logs = Log.objects.order_by('-date')[:5]
+    config, _ = InfoServiceConfiguration.objects.get_or_create(user=request.user)
+    lastest_logs = Log.objects.order_by('-date')[:config.log_display_limit]
+    lastest_announcements = Announcement.objects.order_by('-date')[:config.announcement_display_limit]
 
     # Logowanie aktywności (jeśli ustawienia na to pozwalają)
     if hasattr(request.user, 'log_settings') and request.user.log_settings.log_info:
@@ -30,7 +33,9 @@ def main_page(request):
         'user_favorites': user_favorites,
         'favorite_url_names': favorite_url_names,
         'favorite_names': favorite_names,
-        'logs': lastest_logs
+        'info_service_config': config,
+        'logs': lastest_logs,
+        'lastest_announcements': lastest_announcements,
     })
 
 
@@ -119,7 +124,7 @@ def tag_list(request):
             type='INFO'
         )
 
-    return render(request, 'web_service/settings/tags/tag_list.html', {
+    return render(request, 'web_service/administration/tags/tag_list.html', {
         'elements': page_obj,
         'page_obj': page_obj,
         'is_paginated': page_obj.has_other_pages(),
@@ -145,7 +150,7 @@ def tag_create(request):
     else:
         form = TagForm()
 
-    return render(request, 'web_service/settings/tags/tag_form.html', {'form': form, 'title': 'Dodaj nową flagę'})
+    return render(request, 'web_service/administration/tags/tag_form.html', {'form': form, 'title': 'Dodaj nową flagę'})
 
 @login_required
 def tag_edit(request, pk):
@@ -166,7 +171,7 @@ def tag_edit(request, pk):
     else:
         form = TagForm(instance=tag)
 
-    return render(request, 'web_service/settings/tags/tag_form.html', {'form': form, 'title': f'Edytuj flagę: {tag.name}'})
+    return render(request, 'web_service/administration/tags/tag_form.html', {'form': form, 'title': f'Edytuj flagę: {tag.name}'})
 
 @login_required
 def tag_delete(request, pk):
@@ -184,7 +189,7 @@ def tag_delete(request, pk):
         messages.success(request, f'Flaga "{tag.name}" została usunięta.')
         return redirect('tag_list')
 
-    return render(request, 'web_service/settings/tags/tag_confirm_delete.html', {'tag': tag})
+    return render(request, 'web_service/administration/tags/tag_confirm_delete.html', {'tag': tag})
 
 #logs
 @login_required
@@ -237,3 +242,238 @@ def toggle_favorite(request):
     if not created:
         favorite.delete()
     return redirect(request.META.get('HTTP_REFERER', '/'))
+
+#infopage settings
+
+@login_required
+def info_service_configuration(request):
+    config, _ = InfoServiceConfiguration.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        form = InfoServiceConfigurationForm(request.POST, instance=config)
+        if form.is_valid():
+            form.save()
+            return redirect('info_service_configuration')
+    else:
+        form = InfoServiceConfigurationForm(instance=config)
+
+    return render(request, 'web_service/profile/info_service/config_form.html', {
+        'form': form,
+        'title': 'Konfiguracja Infoserwisu'
+    })
+
+@login_required
+def announcement_list(request):
+    """
+    Widok listy tagów z obsługą paginacji i ustawieniem liczby rekordów na stronę przechowywanym w UserSilentSettings.
+    """
+    settings, _ = UserSilentSettings.objects.get_or_create(user=request.user)
+    custom = request.GET.get('custom_per_page')
+    selected = request.GET.get('per_page')
+
+    try:
+        if custom:
+            settings.per_page = int(custom)
+            settings.save()
+        elif selected:
+            settings.per_page = int(selected)
+            settings.save()
+    except ValueError:
+        pass 
+
+    per_page = settings.per_page
+    elements = Announcement.objects.all().order_by('created_by')
+    paginator = Paginator(elements, per_page)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    if hasattr(request.user, 'log_settings') and request.user.log_settings.log_info:
+        Log.objects.create(
+            user=request.user,
+            action='Uruchomił moduł ogłoszenia',
+            type='INFO'
+        )
+
+    return render(request, 'web_service/administration/announcement/announcement_list.html', {
+        'elements': page_obj,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
+        'paginator': paginator,
+        'per_page': per_page,
+        'per_page_options': [settings.per_page] + [x for x in [10, 20, 50, 100] if x != settings.per_page],
+    })
+
+@login_required
+def announcement_create(request):
+    if request.method == 'POST':
+        form = AnnouncementForm(request.POST)
+        if form.is_valid():
+            announcement = form.save(commit=False)
+            announcement.created_by = request.user
+            announcement.save()
+
+            # logowanie utworzenia ogłoszenia
+            if hasattr(request.user, 'log_settings') and request.user.log_settings.log_warning:
+                Log.objects.create(
+                    user=request.user,
+                    action=f'Utworzył ogłoszenie „{announcement.subject}” z datą {announcement.date}',
+                    type='WARNING'
+                )
+
+            return redirect('announcement_list')
+    else:
+        form = AnnouncementForm()
+
+    return render(request, 'web_service/administration/announcement/announcement_form.html', {
+        'form': form,
+        'title': 'Dodaj ogłoszenie'
+    })
+
+@login_required
+def announcement_edit(request, pk):
+    announcement = get_object_or_404(Announcement, pk=pk)
+    if request.method == 'POST':
+        form = AnnouncementForm(request.POST, instance=announcement)
+        if form.is_valid():
+            announcement = form.save()
+            #log
+            if hasattr(request.user, 'log_settings') and request.user.log_settings.log_warning:
+                Log.objects.create(
+                    user=request.user,
+                    action=f'Edytował ogłoszenie {announcement.subject}.',
+                    type = 'WARNING'
+                )
+            return redirect('announcement_list')
+    else:
+        form = AnnouncementForm(instance=announcement)
+    return render(request, 'web_service/administration/announcement/announcement_form.html', {'form': form, 'title': f'Edytuj ogłoszenie: {announcement.subject}'})
+
+@login_required
+def announcement_delete(request, pk):
+    element = get_object_or_404(Announcement, pk=pk)
+    if request.method == 'POST':
+        #log
+        element.delete()
+        if hasattr(request.user, 'log_settings') and request.user.log_settings.log_warning:
+            Log.objects.create(
+                user=request.user,
+                action=f'Usunął ogłoszenie {element.subject} z dnia {element.date}',
+                type = 'WARNING'
+            )
+        messages.success(request, f'Ogłoszenie "{element.subject}" zostało usunięte.')
+        return redirect('announcement_list')
+
+    return render(request, 'web_service/administration/announcement/announcement_confirm_delete.html', {'element': element})
+
+@login_required
+def user_list(request):
+    """
+    Widok listy użytkowników z paginacją i ustawieniami per_page zapisanymi w UserSilentSettings.
+    """
+    settings, _ = UserSilentSettings.objects.get_or_create(user=request.user)
+    custom = request.GET.get('custom_per_page')
+    selected = request.GET.get('per_page')
+
+    try:
+        if custom:
+            settings.per_page = int(custom)
+            settings.save()
+        elif selected:
+            settings.per_page = int(selected)
+            settings.save()
+    except ValueError:
+        pass
+
+    per_page = settings.per_page
+    elements = User.objects.all().order_by('username')
+
+    paginator = Paginator(elements, per_page)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # logowanie wejścia
+    if hasattr(request.user, 'log_settings') and request.user.log_settings.log_info:
+        Log.objects.create(
+            user=request.user,
+            action='Uruchomił moduł użytkowników',
+            type='INFO'
+        )
+
+    return render(request, 'web_service/settings/users/user_list.html', {
+        'elements': page_obj,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
+        'paginator': paginator,
+        'per_page': per_page,
+        'per_page_options': [settings.per_page] + [x for x in [10, 20, 50, 100] if x != settings.per_page],
+    })
+
+def user_create(request):
+    if request.method == 'POST':
+        form = CustomUserCreateForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+
+            # log
+            if hasattr(request.user, 'log_settings') and request.user.log_settings.log_warning:
+                Log.objects.create(
+                    user=request.user,
+                    action=f'Utworzył użytkownika {user.username}.',
+                    type='WARNING'
+                )
+
+            messages.success(request, f'Użytkownik "{user.username}" został utworzony.')
+            return redirect('user_list')
+    else:
+        form = CustomUserCreateForm()
+
+    return render(request, 'web_service/settings/users/user_form.html', {
+        'form': form,
+        'title': 'Dodaj użytkownika'
+    })
+
+@login_required
+def user_edit(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    if request.method == 'POST':
+        form = CustomUserEditForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+
+            if hasattr(request.user, 'log_settings') and request.user.log_settings.log_warning:
+                Log.objects.create(
+                    user=request.user,
+                    action=f'Edytował użytkownika {user.username}.',
+                    type='WARNING'
+                )
+
+            messages.success(request, f'Użytkownik "{user.username}" został zaktualizowany.')
+            return redirect('user_list')
+    else:
+        form = CustomUserEditForm(instance=user)
+
+    return render(request, 'web_service/settings/users/user_form.html', {
+        'form': form,
+        'title': f'Edytuj użytkownika: {user.username}'
+    })
+
+@login_required
+def user_delete(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    if request.method == 'POST':
+        username = user.username
+        user.delete()
+
+        if hasattr(request.user, 'log_settings') and request.user.log_settings.log_warning:
+            Log.objects.create(
+                user=request.user,
+                action=f'Usunął użytkownika {username}.',
+                type='WARNING'
+            )
+
+        messages.success(request, f'Użytkownik "{username}" został usunięty.')
+        return redirect('user_list')
+
+    return render(request, 'web_service/settings/users/user_confirm_delete.html', {
+        'element': user  # dla spójności z template
+    })

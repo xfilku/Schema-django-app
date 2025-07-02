@@ -116,21 +116,60 @@
                                             </button>
                                         </form>
                                     </a>
+                                    <a href="{% url 'info_service_configuration' %}" class="list-group-item d-flex justify-content-between align-items-center">
+                                        
+                                        <span class="{% if request.resolver_match.url_name == 'info_service_configuration' %}text-primary{% endif %}">
+                                            <i class="fa-solid fa-gear me-2 {% if request.resolver_match.url_name == 'info_service_configuration' %}text-primary{% else %}text-secondary{% endif %}"></i>
+                                            Ustawienia panelu
+                                        </span>
+
+                                        <form method="post" action="{% url 'toggle_favorite' %}" class="d-inline favorite-form">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="url" value="{% url 'info_service_configuration' %}">
+                                            <input type="hidden" name="name" value="Ustawienia panelu">
+                                            <button type="submit" class="btn btn-link p-0 border-0 text-warning">
+                                                {% if 'Ustawienia panelu' in favorite_names %}
+                                                    <i class="fa-solid fa-star"></i>
+                                                {% else %}
+                                                    <i class="fa-regular fa-star"></i>
+                                                {% endif %}
+                                            </button>
+                                        </form>
+                                    </a>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Ustawienia -->
+                    <!-- Administracja -->
                     <div class="accordion-item">
                         <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSettings">
-                                <i class="fa-solid fa-gear me-2"></i> Ustawienia
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdministration">
+                                <i class="fa-solid fa-screwdriver-wrench me-2"></i> Administracja
                             </button>
                         </h2>
-                        <div id="collapseSettings" class="accordion-collapse collapse" data-bs-parent="#sidebarAccordion">
+                        <div id="collapseAdministration" class="accordion-collapse collapse" data-bs-parent="#sidebarAccordion">
                             <div class="accordion-body">
                                 <div class="list-group list-group-flush">
+                                    <a href="{% url 'announcement_list' %}" class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span class="{% if request.resolver_match.url_name == 'announcement_list' %}text-primary{% endif %}">
+                                            <i class="fa-solid fa-bullhorn me-2 {% if request.resolver_match.url_name == 'announcement_list' %}text-primary{% else %}text-secondary{% endif %}"></i>
+                                            Ogłoszenia
+                                        </span>
+
+                                        <form method="post" action="{% url 'toggle_favorite' %}" class="d-inline favorite-form">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="url" value="{% url 'announcement_list' %}">
+                                            <input type="hidden" name="name" value="Ogłoszenia">
+                                            <button type="submit" class="btn btn-link p-0 border-0 text-warning">
+                                                {% if 'Ogłoszenia' in favorite_names %}
+                                                    <i class="fa-solid fa-star"></i>
+                                                {% else %}
+                                                    <i class="fa-regular fa-star"></i>
+                                                {% endif %}
+                                            </button>
+                                        </form>
+                                    </a>
                                     <a href="{% url 'tag_list' %}" class="list-group-item d-flex justify-content-between align-items-center">
                                         
                                         <span class="{% if request.resolver_match.url_name == 'tag_list' %}text-primary{% endif %}">
@@ -151,6 +190,21 @@
                                             </button>
                                         </form>
                                     </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ustawienia -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSettings">
+                                <i class="fa-solid fa-gear me-2"></i> Ustawienia
+                            </button>
+                        </h2>
+                        <div id="collapseSettings" class="accordion-collapse collapse" data-bs-parent="#sidebarAccordion">
+                            <div class="accordion-body">
+                                <div class="list-group list-group-flush">
                                     <a href="{% url 'log_list' %}" class="list-group-item d-flex justify-content-between align-items-center">
                                         
                                         <span class="{% if request.resolver_match.url_name == 'log_list' %}text-primary{% endif %}">
@@ -164,6 +218,26 @@
                                             <input type="hidden" name="name" value="Dziennik aktywności">
                                             <button type="submit" class="btn btn-link p-0 border-0 text-warning">
                                                 {% if 'Dziennik aktywności' in favorite_names %}
+                                                    <i class="fa-solid fa-star"></i>
+                                                {% else %}
+                                                    <i class="fa-regular fa-star"></i>
+                                                {% endif %}
+                                            </button>
+                                        </form>
+                                    </a>
+                                    <a href="{% url 'user_list' %}" class="list-group-item d-flex justify-content-between align-items-center">
+                                        
+                                        <span class="{% if request.resolver_match.url_name == 'user_list' %}text-primary{% endif %}">
+                                            <i class="fa-solid fa-users text-danger me-2 {% if request.resolver_match.url_name == 'user_list' %}text-primary{% else %}text-secondary{% endif %}"></i>
+                                            Użytkownicy
+                                        </span>
+
+                                        <form method="post" action="{% url 'toggle_favorite' %}" class="d-inline favorite-form">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="url" value="{% url 'user_list' %}">
+                                            <input type="hidden" name="name" value="Użytkownicy">
+                                            <button type="submit" class="btn btn-link p-0 border-0 text-warning">
+                                                {% if 'Użytkownicy' in favorite_names %}
                                                     <i class="fa-solid fa-star"></i>
                                                 {% else %}
                                                     <i class="fa-regular fa-star"></i>
