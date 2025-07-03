@@ -12,16 +12,26 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+env_path = os.path.join(BASE_DIR, '.env')
+load_dotenv(dotenv_path=env_path)
+
+print("DEBUG: ENV PATH =", env_path)
+print("DEBUG: FILE EXISTS =", os.path.exists(env_path))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-&)ez_$dhl%9w0)pu7@*)c$f^l-#q3u@jukob8p^#z5ln1-#xr8'
+
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+print("DEBUG: DJANGO_SECRET_KEY =", os.getenv("DJANGO_SECRET_KEY"))
+if not SECRET_KEY:
+    raise ValueError("No DJANGO_SECRET_KEY found in environment variables!")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -122,7 +132,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # URL do plików statycznych
 STATIC_URL = '/static/'

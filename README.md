@@ -11,34 +11,67 @@ System zarządzania panelem informacyjnym i kontrolą dostępu oparty na niestan
 - **System logowania akcji**: Przechowywanie dziennika zdarzeń użytkownika.
 - **Testy jednostkowe**: Pełne pokrycie testami widoków w zależności od uprawnień, testy logiki modeli i sygnałów.
 
-## 🚀 Jak uruchomić projekt
+## 🚀 Jak uruchomić
 
-### 1. Instalacja zależności
+Aby uruchomić projekt lokalnie:
+
+### 1. Sklonuj repozytorium
+
+```bash
+git clone https://github.com/xfilku/Schema-django-app.git
+cd Schema-django-app
+```
+
+### 2. Utwórz i aktywuj wirtualne środowisko
+
+**Windows:**
+
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+**Linux/macOS:**
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 3. Zainstaluj zależności
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Migracje i uruchomienie serwera
+### 4. Utwórz plik `.env`
+
+W katalogu głównym (tam gdzie `manage.py`) utwórz plik `.env` z taką zawartością:
+
+```
+DJANGO-SECRET-KEY=tu-wklej-wlasny-klucz
+```
+
+🔑 Aby wygenerować bezpieczny klucz:
 
 ```bash
-python manage.py migrate
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+
+> Plik `.env` znajduje się w `.gitignore`, więc nie zostanie przypadkowo opublikowany.
+
+### 5. Uruchom aplikację
+
+```bash
 python manage.py runserver
 ```
 
-### 3. Uruchamianie testów
+Baza danych `db.sqlite3` zawiera przykładowe dane, więc nie trzeba tworzyć konta superużytkownika.
 
-#### ✅ Wszystkie testy
+### ✅ Gotowe!
 
-```bash
-python manage.py test web_service
-```
-
-#### ✅ Jeden test
-
-```bash
-python manage.py test web_service.tests.PermissionTests.test_user_has_access_to_dashboard
-```
+Aplikacja będzie dostępna pod adresem:  
+[http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ## ✅ Testy jednostkowe
 
