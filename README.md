@@ -96,3 +96,18 @@ web_service/
 ## ✍️ Autor
 
 Projekt stworzony przez **Filipa Dyszkiewicza** jako rozbudowany system panelu zarządzania z testami i kontrolą dostępu.
+
+## License
+
+This project is licensed under a **Custom Non-Commercial License**.
+You may use, modify, and share the code freely for personal and non-commercial use.
+
+➡️ Commercial use requires a license. Contact me at: 1j51.dyszkiewicz@gmail.com  
+See [LICENSE](LICENSE) for full terms.
+
+Projekt objęty jest licencją Custom Non-Commercial License (niestandardowa licencja niekomercyjna).
+Wolno: używać, modyfikować i udostępniać ten kod w celach edukacyjnych, prywatnych i niekomercyjnych.
+Nie wolno: używać kodu do celów komercyjnych (sprzedaż, wykorzystanie w płatnych produktach), sprzedawać ani redystrybuować całości lub fragmentów, nawet po modyfikacji.
+
+➡️ W przypadku chęci komercyjnego wykorzystania napisz do autora: 1j51.dyszkiewicz@gmail.com
+Sprawdź [LICENSE](LICENSE) i poznaj pełne warunki licencji.
