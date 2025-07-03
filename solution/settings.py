@@ -67,6 +67,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'web_service.context_processors.user_favorites',
                 'web_service.context_processors.per_page_setting',
+                'web_service.context_processors.global_variables',
             ],
         },
     },
@@ -148,3 +149,7 @@ LOGIN_URL = '/login/'
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+#globals
+APP_NAME = "Web App Template"
+APP_OWNER = "Filip Dyszkiewicz"

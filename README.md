@@ -89,6 +89,10 @@ web_service/
 - Uprawnienia są przechowywane w modelu `UserPermissions` jako pole JSON
 - Sygnały automatycznie tworzą domyślne konfiguracje dla użytkownika
 
+## 👤 Użytkownicy
+- login: f-dyszk, hasło: tajnehaslo123 (superadmin)
+- login: j-kowalski, hasło: tajnehaslo321 (zwykły użytkownik)
+
 ## ✍️ Autor
 
-Projekt stworzony przez **Filipa** jako rozbudowany system panelu zarządzania z testami i kontrolą dostępu.
+Projekt stworzony przez **Filipa Dyszkiewicza** jako rozbudowany system panelu zarządzania z testami i kontrolą dostępu.

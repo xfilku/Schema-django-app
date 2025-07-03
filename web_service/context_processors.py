@@ -6,7 +6,7 @@ into the template context, available in all templates.
 """
 
 from .models import FavoriteLink, UserSilentSettings
-
+from django.conf import settings
 
 def user_favorites(request):
     """
@@ -57,3 +57,20 @@ def user_permissions(request):
     return {
         'USER_PERMS': perms.permissions if perms else {}
     }
+
+"""
+Custom context processors to inject global variables into all templates.
+"""
+
+def global_variables(request):
+    """
+    Adds global application constants to the template context.
+
+    Returns:
+        dict: A dictionary with APP_NAME and APP_OWNER from settings.
+    """
+    return {
+        'APP_NAME': getattr(settings, 'APP_NAME', 'AppName'),
+        'APP_OWNER': getattr(settings, 'APP_OWNER', 'Owner'),
+    }
+
