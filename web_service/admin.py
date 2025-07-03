@@ -1,3 +1,11 @@
+"""
+Admin configuration for custom models and extended User model integration.
+
+This module registers Tag, UserPermissions, and UserLogSettings models
+to the Django admin interface and customizes the default User admin panel
+to include inline logging preferences.
+"""
+
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
@@ -8,28 +16,43 @@ from .forms import TagAdminForm
 # --- Tag admin ---
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    form = TagAdminForm
-    list_display = ('name', 'color',)
-    search_fields = ('name',)
+    """
+    Admin configuration for Tag model.
+    """
+    form = TagAdminForm  # Custom form with additional validation/styling
+    list_display = ('name', 'color')  # Displayed columns in admin list view
+    search_fields = ('name',)  # Enables search by name
+
 
 @admin.register(UserPermissions)
 class UserPermissionsAdmin(admin.ModelAdmin):
+    """
+    Admin configuration for UserPermissions model.
+    """
     list_display = ['user']
-    readonly_fields = ['user']
-    search_fields = ['user__username']
+    readonly_fields = ['user']  # Prevent editing user field
+    search_fields = ['user__username']  # Allow search by username
 
-# --- UserLogSettings inline dla użytkownika ---
+
+# --- UserLogSettings inline for User admin ---
 class UserLogSettingsInline(admin.StackedInline):
+    """
+    Inline admin class to display and edit UserLogSettings
+    directly within the User admin panel.
+    """
     model = UserLogSettings
-    can_delete = False
-    verbose_name_plural = 'Ustawienia logowania'
+    can_delete = False  # Prevent deletion via inline
+    verbose_name_plural = 'Ustawienia logowania'  # Displayed name in admin
 
 
-# --- Rozszerzony UserAdmin ---
+# --- Extended UserAdmin with inlines ---
 class UserAdmin(BaseUserAdmin):
-    inlines = (UserLogSettingsInline,)
+    """
+    Custom User admin including UserLogSettings inline.
+    """
+    inlines = (UserLogSettingsInline,)  # Attach inline settings to User view
 
 
-# --- Przerejestrowanie użytkownika ---
-admin.site.unregister(User)
-admin.site.register(User, UserAdmin)
+# --- Override default User admin ---
+admin.site.unregister(User)  # Unregister built-in User admin
+admin.site.register(User, UserAdmin)  # Register custom User admin

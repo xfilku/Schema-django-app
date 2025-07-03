@@ -1,25 +1,23 @@
 """
-URL configuration for solution project.
+URL configuration for the 'solution' Django project.
 
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+This file defines the root URL mappings used by the Django application.
+Routes are defined using `urlpatterns` and point to URL configurations
+in individual apps or views.
+
+Docs: https://docs.djangoproject.com/en/5.2/topics/http/urls/
 """
+
 from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
+    # Route to the Django admin panel
     path('admin/', admin.site.urls),
+
+    # Main app routes delegated to 'web_service' application
     path('', include('web_service.urls')),
 ]
 
+# Custom 404 error handler (defined in web_service/views.py)
 handler404 = 'web_service.views.custom_404_view'
