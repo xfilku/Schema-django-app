@@ -49,7 +49,7 @@ pip install -r requirements.txt
 W katalogu głównym (tam gdzie `manage.py`) utwórz plik `.env` z taką zawartością:
 
 ```
-DJANGO-SECRET-KEY=tu-wklej-wlasny-klucz
+DJANGO_SECRET_KEY=tu-wklej-wlasny-klucz
 ```
 
 🔑 Aby wygenerować bezpieczny klucz:
