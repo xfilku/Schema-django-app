@@ -28,7 +28,7 @@ print("DEBUG: FILE EXISTS =", os.path.exists(env_path))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+SECRET_KEY = os.getenv('DJANGO-SECRET-KEY')
 print("DEBUG: DJANGO_SECRET_KEY =", os.getenv("DJANGO_SECRET_KEY"))
 if not SECRET_KEY:
     raise ValueError("No DJANGO_SECRET_KEY found in environment variables!")
